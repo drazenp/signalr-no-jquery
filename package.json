@@ -1,7 +1,7 @@
 {
   "name": "@cojam/signalr-no-jquery",
   "description": "Javascript SignalR client without jQuery dependency",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "author": {
     "name": "Pawel",
     "url": "https://github.com/dvlp"
