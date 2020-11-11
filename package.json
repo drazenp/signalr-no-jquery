@@ -1,7 +1,7 @@
 {
   "name": "@cojam/signalr-no-jquery",
   "description": "Javascript SignalR client without jQuery dependency",
-  "version": "0.1.13",
+  "version": "0.1.14",
   "author": {
     "name": "Pawel",
     "url": "https://github.com/dvlp"
@@ -32,11 +32,13 @@
     "jquery-param": "0.2.0"
   },
   "devDependencies": {
+    "browserify": "^17.0.0",
     "gulp": "4.0.2",
     "gulp-clean": "0.4.0",
     "gulp-header": "2.0.9",
     "gulp-pipe": "1.0.4",
     "gulp-rename": "2.0.0",
-    "signalr": "2.4.1"
+    "signalr": "2.4.1",
+    "vinyl-source-stream": "^2.0.0"
   }
 }
