@@ -1,23 +1,27 @@
 # signalr-no-jquery
-## SignalR JS Client with shimmed jQuery not polluting global namespace
+
+SignalR JS Client with shimmed jQuery not polluting global namespace
+
+Forked from [DVLP/signalr-no-jquery](https://github.com/DVLP/signalr-no-jquery).
+
+TypeScript typings was taken from [DefinitelyTyped repo](https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/signalr-no-jquery).
 
 jQuery shim borrowed from [react-native-signalR](https://github.com/olofd/react-native-signalr)
 
-This version of signalR client doesn't add jQuery to `window` object but imports jQueryShim locally to signalR and exports `hubConnection`.
-jQueryShim file contains only bare-minimum of jQuery to make signalR client run.
+This version of signalR client doesn't add jQuery to `window` object but imports jQueryShim locally to signalR and exports `hubConnection`. jQueryShim file contains only bare-minimum of jQuery to make signalR client run.
 
-This package is not meant to be used with ASP.NET Core version of SignalR
+This package is not meant to be used with ASP.NET Core version of SignalR.
 
 ### Usage
 ```
-npm i -D signalr-no-jquery
+npm i -D @cojam/signalr-no-jquery
 ```
 
 #### ES6 Loader
 
 
 ```
-import { hubConnection } from 'signalr-no-jquery';
+import { hubConnection } from '@cojam/signalr-no-jquery';
 ```
 
 #### HTML
@@ -68,6 +72,3 @@ import { connection } from 'signalr-no-jquery';
 ### Problems
 
 Feel free to create pull requests and raise issues https://github.com/DVLP/signalr-no-jquery/issues
-
-
-
