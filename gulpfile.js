@@ -4,9 +4,9 @@ const pipe = require('gulp-pipe')
 const clean = require('gulp-clean')
 const rename = require('gulp-rename')
 const header = require('gulp-header')
-
-const browserify = require('browserify')
-const source = require('vinyl-source-stream');
+const footer = require('gulp-footer')
+const replace = require('gulp-replace')
+const babel = require('gulp-babel')
 
 const path = require('path')
 
@@ -20,7 +20,7 @@ const tempDir = path.join(__dirname, 'tmp')
 
 const signalRDestName = 'signalR.js'
 
-const signalRPath = path.join(getPackageDir('signalr'), 'jquery.signalR.min.js')
+const signalRPath = path.join(getPackageDir('signalr'), 'jquery.signalR.js')
 
 const shimPath = path.join(srcDir, 'jQueryShim.js')
 
@@ -36,21 +36,23 @@ gulp.task('destDir:clear', () => pipe([
 	clean()
 ]))
 
-gulp.task('shim:get', () => pipe([
-	gulp.src(shimPath),
-	gulp.dest(tempDir)
-]))
-
 gulp.task('signalr:get', () => pipe([
 	gulp.src(signalRPath),
-	header(`const jQueryShim = require('./jQueryShim');\n`),
 	rename(signalRDestName),
 	gulp.dest(tempDir)
 ]))
 
 gulp.task('signalr:build', () => pipe([
-	browserify(signalRTmpPath).bundle(),
-	source(signalRDestName),
+	gulp.src(signalRTmpPath),
+	header(`const jQueryShim = require('./jQueryShim');\n`),
+	replace('window.jQuery', 'jQueryShim'),
+	footer(`\nexports.hubConnection = jQueryShim.hubConnection;\nexports.signalR = jQueryShim.signalR;`),
+	babel({ presets: ['@babel/env'] }),
+	gulp.dest(destDir)
+]))
+
+gulp.task('shim:copy', () => pipe([
+	gulp.src(shimPath),
 	gulp.dest(destDir)
 ]))
 
@@ -59,6 +61,6 @@ gulp.task('typings:copy', () => pipe([
 	gulp.dest(destDir)
 ]))
 
-gulp.task('build', gulp.series('tempDir:clear', 'shim:get', 'signalr:get', 'signalr:build', 'tempDir:clear'))
+gulp.task('build', gulp.series('tempDir:clear', 'signalr:get', 'signalr:build', 'tempDir:clear'))
 
-gulp.task('default', gulp.series('destDir:clear', 'build', 'typings:copy'))
+gulp.task('default', gulp.series('destDir:clear', 'build', 'shim:copy', 'typings:copy'))
