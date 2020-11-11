@@ -1,7 +1,7 @@
 {
   "name": "@cojam/signalr-no-jquery",
   "description": "Javascript SignalR client without jQuery dependency",
-  "version": "0.1.11",
+  "version": "0.1.12",
   "author": {
     "name": "Pawel",
     "url": "https://github.com/dvlp"
@@ -17,8 +17,8 @@
     "signalr"
   ],
   "license": "Apache-2.0",
-  "lib": "lib/signalR.js",
-  "types": "typings/typings.d.ts",
+  "lib": "./lib/signalR.js",
+  "types": "./lib/signalR.d.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/cojamru/signalr-no-jquery.git"

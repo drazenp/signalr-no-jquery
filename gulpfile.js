@@ -9,29 +9,24 @@ const path = require('path')
 
 const getPackageDir = packageName => path.dirname(require.resolve(`${packageName}/package.json`))
 
-const srcDir = path.join(__dirname, 'src')
-
 const destDir = path.join(__dirname, 'lib')
+
+const signalRDestName = 'signalR.js'
 
 const signalRPath = path.join(getPackageDir('signalr'), 'jquery.signalR.min.js')
 
-const shimPath = path.join(srcDir, 'jQueryShim.js')
+const signalRDestPath = path.join(destDir, signalRDestName)
 
-gulp.task('get-signalr-file', () => pipe([
-	gulp.src(signalRPath),
-	header(`const jQueryShim = require('./jQueryShim');\n`),
-	rename('signalR.js'),
-	gulp.dest(destDir)
-]))
-
-gulp.task('get-shim-file', () => pipe([
-	gulp.src(shimPath),
-	gulp.dest(destDir)
-]))
-
-gulp.task('clear-dest', () => pipe([
-	gulp.src(destDir, { read: false, allowEmpty: true }),
+gulp.task('clear-signalr-dest', () => pipe([
+	gulp.src(signalRDestPath, { read: false, allowEmpty: true }),
 	clean()
 ]))
 
-gulp.task('default', gulp.series('clear-dest', 'get-shim-file', 'get-signalr-file'))
+gulp.task('get-signalr', () => pipe([
+	gulp.src(signalRPath),
+	header(`const jQueryShim = require('./jQueryShim');\n`),
+	rename(signalRDestName),
+	gulp.dest(destDir)
+]))
+
+gulp.task('default', gulp.series('clear-signalr-dest', 'get-signalr'))
