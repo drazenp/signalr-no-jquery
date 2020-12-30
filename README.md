@@ -4,7 +4,7 @@ SignalR JS Client with shimmed jQuery not polluting global namespace
 
 Forked from [DVLP/signalr-no-jquery](https://github.com/DVLP/signalr-no-jquery).
 
-TypeScript typings was taken from [DefinitelyTyped repo](https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/signalr-no-jquery).
+TypeScript typings was taken from [DefinitelyTyped repo](https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/signalr).
 
 jQuery shim borrowed from [react-native-signalR](https://github.com/olofd/react-native-signalr)
 
@@ -13,22 +13,20 @@ This version of signalR client doesn't add jQuery to `window` object but imports
 This package is not meant to be used with ASP.NET Core version of SignalR.
 
 ### Usage
-```
+
+```js
 npm i -D @cojam/signalr-no-jquery
 ```
 
 #### ES6 Loader
 
-
-```
+```js
 import { hubConnection } from '@cojam/signalr-no-jquery';
 ```
 
-#### HTML
-
 Use just like regular signalR but without $ namespace
 
-```
+```js
 const connection = hubConnection('http://[address]:[port]', options);
 const hubProxy = connection.createHubProxy('hubNameString');
 
@@ -39,36 +37,10 @@ hubProxy.on('message', function(message) {
 
 // connect
 connection.start({ jsonp: true })
-.done(function(){ console.log('Now connected, connection ID=' + connection.id); })
-.fail(function(){ console.log('Could not connect'); });
+	.done(function(){ console.log('Now connected, connection ID=' + connection.id); })
+	.fail(function(){ console.log('Could not connect'); });
 
 ```
-#### Integration with @types/Signalr
-
-If you want to have got strong typing just install @types/Signalr
-
-```
-npm install --save @types/signalr
-```
-
-and add at the begining of TypeScript file:
-
-```
-    /// <reference types="@types/signalr" />
-```
-Now in this file you can type for example
-```
-private connection: SignalR.Hub.Connection;
-```
-
-#### Update 4/01/2017: accessing global setttings like through former $.connection
-
-Note: This is an object holding global settings and it's not the same as connection handle returned by hubConnection
-
-```
-import { connection } from 'signalr-no-jquery';
-```
-
 ### Problems
 
-Feel free to create pull requests and raise issues https://github.com/DVLP/signalr-no-jquery/issues
+Feel free to create pull requests and raise issues https://github.com/cojamru/signalr-no-jquery/issues
