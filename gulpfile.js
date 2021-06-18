@@ -1,66 +1,55 @@
-const gulp = require('gulp')
+import path from 'path';
+import { EOL } from 'os';
+import { fileURLToPath } from 'url';
 
-const pipe = require('gulp-pipe')
-const clean = require('gulp-clean')
-const rename = require('gulp-rename')
-const header = require('gulp-header')
-const footer = require('gulp-footer')
-const replace = require('gulp-replace')
-const babel = require('gulp-babel')
+import gulp from 'gulp';
 
-const path = require('path')
+import pipeline from 'gulp-pipe';
+import clean from 'gulp-clean';
+import rename from 'gulp-rename';
+import header from 'gulp-header';
+import footer from 'gulp-footer';
+import replace from 'gulp-replace';
+import babel from 'gulp-babel';
 
-const getPackageDir = packageName => path.dirname(require.resolve(`${packageName}/package.json`))
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const srcDir = path.join(__dirname, 'src')
+const getPackageDir = packageName => path.join(__dirname, 'node_modules', packageName);
 
-const destDir = path.join(__dirname, 'lib')
+const srcDir = path.join(__dirname, 'src');
 
-const tempDir = path.join(__dirname, 'tmp')
+const destDir = path.join(__dirname, 'lib');
 
-const signalRDestName = 'signalR.js'
+const tempDir = path.join(__dirname, 'tmp');
 
-const signalRPath = path.join(getPackageDir('signalr'), 'jquery.signalR.js')
+const signalRDestName = 'signalR.js';
 
-const shimPath = path.join(srcDir, 'jQueryShim.js')
+const signalRPath = path.join(getPackageDir('signalr'), 'jquery.signalR.js');
 
-const signalRTmpPath = path.join(tempDir, signalRDestName)
+const shimPath = path.join(srcDir, 'jQueryShim.js');
 
-gulp.task('tempDir:clear', () => pipe([
-	gulp.src(tempDir, { read: false, allowEmpty: true }),
-	clean()
-]))
+const signalRTmpPath = path.join(tempDir, signalRDestName);
 
-gulp.task('destDir:clear', () => pipe([
-	gulp.src(tempDir, { read: false, allowEmpty: true }),
-	clean()
-]))
+const clearTempDir = () => pipeline([gulp.src(tempDir, { read: false, allowEmpty: true }), clean()]);
 
-gulp.task('signalr:get', () => pipe([
-	gulp.src(signalRPath),
-	rename(signalRDestName),
-	gulp.dest(tempDir)
-]))
+const clearDestDir = () => pipeline([gulp.src(tempDir, { read: false, allowEmpty: true }), clean()]);
 
-gulp.task('signalr:build', () => pipe([
-	gulp.src(signalRTmpPath),
-	header(`const jQueryShim = require('./jQueryShim');\n`),
-	replace('window.jQuery', 'jQueryShim'),
-	footer(`\nexports.hubConnection = jQueryShim.hubConnection;\nexports.signalR = jQueryShim.signalR;`),
-	babel({ presets: ['@babel/env'] }),
-	gulp.dest(destDir)
-]))
+const getSignalR = () => pipeline([gulp.src(signalRPath), rename(signalRDestName), gulp.dest(tempDir)]);
 
-gulp.task('shim:copy', () => pipe([
-	gulp.src(shimPath),
-	gulp.dest(destDir)
-]))
+const buildSignalR = () =>
+    pipeline([
+        gulp.src(signalRTmpPath),
+        header(`import jQueryShim from './jQueryShim';\n`),
+        replace('window.jQuery', 'jQueryShim'),
+        footer(EOL + 'export const hubConnection = jQueryShim.hubConnection;' + EOL + 'export const signalR = jQueryShim.signalR;'),
+        babel({ presets: ['@babel/preset-env'] }),
+        gulp.dest(destDir),
+    ]);
 
-gulp.task('typings:copy', () => pipe([
-	gulp.src(`${srcDir}/signalR.d.ts`),
-	gulp.dest(destDir)
-]))
+const copyShim = () => pipeline([gulp.src(shimPath), babel({ presets: ['@babel/preset-env'] }), gulp.dest(destDir)]);
 
-gulp.task('build', gulp.series('tempDir:clear', 'signalr:get', 'signalr:build', 'tempDir:clear'))
+const copyTypings = () => pipeline([gulp.src(`${srcDir}/signalR.d.ts`), gulp.dest(destDir)]);
 
-gulp.task('default', gulp.series('destDir:clear', 'build', 'shim:copy', 'typings:copy'))
+export const build = gulp.series(clearTempDir, getSignalR, buildSignalR, clearTempDir);
+
+export default gulp.series(clearDestDir, build, copyShim, copyTypings);
