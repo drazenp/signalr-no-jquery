@@ -10,7 +10,7 @@ import rename from 'gulp-rename';
 import header from 'gulp-header';
 import footer from 'gulp-footer';
 import replace from 'gulp-replace';
-import babel from 'gulp-babel';
+import swc from 'gulp-swc';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -36,20 +36,35 @@ const clearDestDir = () => pipeline([gulp.src(tempDir, { read: false, allowEmpty
 
 const getSignalR = () => pipeline([gulp.src(signalRPath), rename(signalRDestName), gulp.dest(tempDir)]);
 
-const buildSignalR = () =>
-    pipeline([
-        gulp.src(signalRTmpPath),
-        header(`import jQueryShim from './jQueryShim';\n`),
-        replace('window.jQuery', 'jQueryShim'),
-        footer(EOL + 'export const hubConnection = jQueryShim.hubConnection;' + EOL + 'export const signalR = jQueryShim.signalR;'),
-        babel({ presets: ['@babel/preset-env'] }),
-        gulp.dest(destDir),
-    ]);
+const swcPipe = (moduleType = 'es6') =>
+    swc({
+        module: {
+            type: moduleType,
+        },
+    });
 
-const copyShim = () => pipeline([gulp.src(shimPath), babel({ presets: ['@babel/preset-env'] }), gulp.dest(destDir)]);
+const mutatePipes = (moduleType = 'es6') => [
+    header(`import jQueryShim from './jQueryShim.${moduleType === 'commonjs' ? 'cjs' : 'js'}';` + EOL),
+    replace('window.jQuery', 'jQueryShim'),
+    footer(EOL + 'export const hubConnection = jQueryShim.hubConnection;' + EOL + 'export const signalR = jQueryShim.signalR;' + EOL),
+];
+
+const renameExtToCommonJs = () =>
+    rename(path => {
+        path.extname = '.cjs';
+    });
+
+const buildSignalR = () => pipeline([gulp.src(signalRTmpPath), ...mutatePipes(), swcPipe(), gulp.dest(destDir)]);
+
+const buildSignalRCommonJs = () =>
+    pipeline([gulp.src(signalRTmpPath), ...mutatePipes('commonjs'), swcPipe('commonjs'), renameExtToCommonJs(), gulp.dest(destDir)]);
+
+const copyShim = () => pipeline([gulp.src(shimPath), swcPipe(), gulp.dest(destDir)]);
+
+const copyShimCommonJs = () => pipeline([gulp.src(shimPath), swcPipe('commonjs'), renameExtToCommonJs(), gulp.dest(destDir)]);
 
 const copyTypings = () => pipeline([gulp.src(`${srcDir}/signalR.d.ts`), gulp.dest(destDir)]);
 
-export const build = gulp.series(clearTempDir, getSignalR, buildSignalR, clearTempDir);
+export const build = gulp.series(clearTempDir, getSignalR, buildSignalR, buildSignalRCommonJs, clearTempDir);
 
-export default gulp.series(clearDestDir, build, copyShim, copyTypings);
+export default gulp.series(clearDestDir, build, copyShim, copyShimCommonJs, copyTypings);
