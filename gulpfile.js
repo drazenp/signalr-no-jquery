@@ -1,6 +1,7 @@
 import path from 'path';
 import { EOL } from 'os';
 import { fileURLToPath } from 'url';
+import { createRequire } from 'module';
 
 import gulp from 'gulp';
 
@@ -12,9 +13,10 @@ import footer from 'gulp-footer';
 import replace from 'gulp-replace';
 import swc from 'gulp-swc';
 
+const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const getPackageDir = packageName => path.join(__dirname, 'node_modules', packageName);
+const getPackageDir = packageName => path.dirname(require.resolve(`${packageName}/package.json`));
 
 const srcDir = path.join(__dirname, 'src');
 
