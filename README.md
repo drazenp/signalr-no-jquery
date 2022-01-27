@@ -1,5 +1,7 @@
 # signalr-no-jquery
 
+## ⚠️ ASP.NET SignalR is deprecated. Please upgrade to modern .NET Core and use ASP.NET Core SignalR ([@microsoft/signalr](https://www.npmjs.com/package/@microsoft/signalr))
+
 SignalR JS Client with shimmed jQuery not polluting global namespace
 
 Forked from [DVLP/signalr-no-jquery](https://github.com/DVLP/signalr-no-jquery).
@@ -39,8 +41,8 @@ hubProxy.on('message', function(message) {
 connection.start({ jsonp: true })
 	.done(function(){ console.log('Now connected, connection ID=' + connection.id); })
 	.fail(function(){ console.log('Could not connect'); });
-
 ```
+
 ### Problems
 
-Feel free to create pull requests and raise issues https://github.com/cojamru/signalr-no-jquery/issues
+This package is no longer supported. This fork at the time of writing this text is one of the best, but I advise you to look for [more fresh ones](https://github.com/cojamru/signalr-no-jquery/network).
